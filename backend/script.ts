@@ -13,43 +13,56 @@ const server = express();
 server.use(cors());
 server.use(express.json());
 
-const darkKnightSchema = z.object({
-    id : z.number(),
-    actor_actress : z.string(),
-    gender : z.string()
-});
+const movieDataSchema = z.array(
+  z.object({
+    id: z.number(),
+    actor_actress: z.string(),
+    role: z.string(),
+    gender: z.string()
+})
+)
 
-//The Full Database
+//----------------------The Full Database--------------------------------------
 server.get("/darkknightcast", async (req: Request, res: Response) => {
-  const answer = await client.query("SELECT * FROM darkknightcast");
+  const data = await client.query("SELECT * FROM darkknightcast");
+  const result = movieDataSchema.safeParse(data.rows)
 
-  res.json(answer.rows);
+  !result.success ? res.sendStatus(400) : res.json(result.data)
 });
 
-//Request ID
+//--------------------------Request ID-----------------------------------------
 server.get("/darkknightcast/:id", async (req: Request, res: Response) => {
- 
+  const id = +req.params.id
+  
+  const data = await client.query(`SELECT * FROM darkknightcast WHERE id='${id}';`,[]);
+  const result = movieDataSchema.safeParse(data.rows)
+
+  !result.success ? res.sendStatus(400) : res.json(result.data)
 });
 
-//SELECT(Get) Actor/Actress
-server.get("/darkknightcast/actor&actress", async (req: Request, res: Response) => {
- 
+//---------------------------Actor/Actress-------------------------------------
+server.get("/darkknightcast/actoractress", async (req: Request, res: Response) => {
+  const data = await client.query(`SELECT actor_actress FROM darkknightcast";`, []);
+  console.log(data)
+ /* const result = movieDataSchema.safeParse(data.rows)
+
+  !result.success ? res.sendStatus(400) : res.json(result.data)*/
 });
-//SELECT(Get) Role
+//-----------------------------------Role-------------------------------------------
 server.get("/darkknightcast/roles", async (req: Request, res: Response) => {
- 
+
 });
-//SELECT(Get) Gender: male
+//---------------------------------Gender: male------------------------------------
 server.get("/darkknightcast/actors", async (req: Request, res: Response) => {
- 
+
 });
-//SELECT(Get) Gender: female
+//----------------------------------Gender: female-------------------------------------
 server.get("/darkknightcast/actress", async (req: Request, res: Response) => {
- 
+
 });
-//INSERT(Post) new Actor/Actress, Role, Gender
+//---------------------------INSERT new Actor/Actress, Role, Gender-----------------------
 server.post("/darkknightcast", async (req: Request, res: Response) => {
- 
+
 });
 //UPDATE
 
